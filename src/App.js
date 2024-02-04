@@ -1,6 +1,6 @@
 import './App.css';
 import ReactDOM from "react-dom";
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useReducer } from 'react';
 import MetricBox from './MetricBox';
 import Alert from './Alert';
 import VisualizationType from './VisualizationType';
@@ -44,6 +44,9 @@ function App() {
   
         // Use a functional update for metricData
         // handleMetricDataChange(fetchedData);
+        dispatch({ type: 'add', payload: fetchedData });
+        console.log("data length"+metricData.length)
+        dispatch({ type: 'remove', payload: fetchedData });
 
         
       }
@@ -54,17 +57,53 @@ function App() {
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array indicates this effect doesn't depend on any props or state
   
-
-  // State variables
-  const [metricData, setMetricData] = useState(0); // list of json
-  const handleMetricDataChange = (newValue) => {
-    setMetricData(
-      [
-        ...metricData,
-        newValue
-      ]
-    );
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case 'add':
+        return [...state, action.payload];
+      case 'remove':
+        return state.slice(-30);
+      case 'refresh':
+        return action.payload; // Assuming payload is an array of new data
+      default:
+        return state;
+    }
   };
+  const [metricData, dispatch] = useReducer(reducer, []);
+  
+
+  // // State variables
+  // const [metricData, setMetricData] = useState([
+  //   {
+  //     'timestamp': 1707007776,
+  //     'water_level': 0.6,
+  //     'moisture': 0.3,
+  //     'temperature': 28.5,
+  //     'light': 50,
+  //   },
+  //   {
+  //     'timestamp': 1707007777,
+  //     'water_level': 0.5,
+  //     'moisture': 0.6,
+  //     'temperature': 25.5,
+  //     'light': 30,
+  //   },
+  //   {
+  //     'timestamp': 1707007778,
+  //     'water_level': 0.8,
+  //     'moisture': 0.4,
+  //     'temperature': 25.9,
+  //     'light': 25,
+  //   }
+  // ]); // list of json
+  // const handleMetricDataChange = (newValue) => {
+  //   setMetricData(
+  //     [
+  //       ...metricData,
+  //       newValue
+  //     ]
+  //   );
+  // };
   const [temperature, setTemperature] = useState(25); // default to 25 celsius
   // Function to handle changes in the input field
   const handleTemperatureChange = (event) => {
@@ -195,7 +234,7 @@ function App() {
   }
   const renderMessage = () => {
     if (!checkAllStatus()) {
-      return <h3 className="message" style={{ color: 'red' }}>You have some crop updates<a href="#status">(See more)</a></h3>;
+      return <h3 className="message" style={{ color: 'red' }}>There exists some concerning metrics</h3>;
     } else {
       return <h3 className="message" style={{ color: 'green' }}>Your crops are doing great! </h3>;
     }
@@ -216,18 +255,22 @@ function App() {
         </nav>
 
         <h1 className="main-title">CosmoCrops</h1>
-        {renderMessage()}
+
+        
+
+        
       </header>
 
       <main className="App-main">
         <section id="status">
           <h2 className="title">Status</h2>
+          {renderMessage()}
           <div className="status-page">
             <MetricBox metricName={"Temperature"} value={temperature} status={checkTempStatus()} />
             <MetricBox metricName={"Moisture"} value={moisture} status={checkMoistureStatus()} />
             <MetricBox metricName={"Water Level"} value={water_level} status={checkWaterStatus()} />
             <MetricBox metricName={"Light"} value={light} status={checkLightStatus()} />
-            <MetricBox metricName={"metricdata"} value={metricData} status={checkLightStatus()} />
+            <MetricBox metricName={"metricdata"} value={metricData.length} status={checkLightStatus()} />
           </div>
 
 
@@ -237,8 +280,8 @@ function App() {
           <h2 className="title">Insights</h2>
           <div className="status-page">
             <div className='vert-pair'>
-              <DataVis type={VisualizationType.Line} />
-              <DataVis />
+              <DataVis type={VisualizationType.Line} data={metricData} />
+              <DataVis type={VisualizationType.Bar}data={metricData} />
             </div>
             <div className='vert-pair'>
               <DataVis />

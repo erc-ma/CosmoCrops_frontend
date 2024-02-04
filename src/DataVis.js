@@ -1,7 +1,7 @@
 
 // DataVis.js
 import React from 'react';
-import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryScatter, VictoryLabel, VictoryBoxPlot, VictoryBar} from 'victory';
+import { VictoryChart, VictoryLine, VictoryArea, VictoryAxis, VictoryTheme, VictoryScatter, VictoryLabel, VictoryBoxPlot, VictoryBar} from 'victory';
 // import Papa from "papaparse";
 // import { useEffect, useState } from "react";
 import VisualizationType from './VisualizationType';
@@ -15,7 +15,16 @@ const mainLineData = [
     { x: 0, y: 0 },
     { x: 100, y: 0 }
 ];
-
+const formatTime = (tick) => {
+    const date = new Date(tick * 1000); // Convert UNIX timestamp to JavaScript Date
+    // Use toLocaleTimeString or manually format the hours, minutes, and seconds
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false // Set to true if you prefer AM/PM format
+    });
+  };
 const markerData = [
     { x: 0, y: 0, label: `0`, labelPosition: 'left' },
     { x: 100, y: 0, label: `100`, labelPosition: 'right' },
@@ -55,7 +64,30 @@ const DataVis = ({ type, data }) => { // Data: list of unique
                 </VictoryChart>
             </div>);
         case VisualizationType.Bar:
-            return <VictoryBar data={data} />;
+            return (<VictoryChart theme={VictoryTheme.material} animate={{ duration: 2000 }} domainPadding={{y:[10,30]}}>
+                <VictoryArea
+                  data={data.map(d => ({
+                    x: d.timestamp,
+                    y: d.light,
+                  }))}
+                  style={{ d: { fill: "#c43a31" } }}
+                />
+                <VictoryAxis
+                  tickValues={data
+                    .map(d => d.timestamp)
+                    .filter((_, index) => index % 60 === 0)}
+                  tickFormat={(tick) => formatTime(tick)} // Format the x-axis tick labels to show time
+                  fixLabelOverlap={true} // This helps to prevent label overlap
+                />
+                <VictoryAxis
+                  dependentAxis // This configures the axis as a y-axis
+                  tickFormat={(tick) => `${tick}%`} // Adjust if necessary for your data representation
+                  label="Temperature (%)"
+                  style={{
+                    axisLabel: { padding: 40 }, // Adjust label positioning
+                  }}
+                />
+              </VictoryChart>);
         default:
             return <div>Unsupported visualization type</div>;
     }
