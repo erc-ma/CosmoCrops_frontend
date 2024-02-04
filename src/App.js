@@ -51,7 +51,7 @@ function App() {
         
       }
       
-    }, 1000); // Fetch data every second
+    }, 2000); // Fetch data every second
   
     // Cleanup on component unmount
     return () => clearInterval(intervalId);
@@ -284,8 +284,8 @@ function App() {
               <DataVis type={VisualizationType.Bar}data={metricData} />
             </div>
             <div className='vert-pair'>
-              <DataVis />
-              <DataVis />
+              <DataVis type={VisualizationType.Bar2}data={metricData}/>
+              <DataVis type={VisualizationType.Bar3}data={metricData} />
             </div>
           </div>
 
