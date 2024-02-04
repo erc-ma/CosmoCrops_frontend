@@ -1,0 +1,19 @@
+/* DataVis.css */
+.data-vis-container {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .data-vis-container:hover {
+    transform: translateY(-5px);
+  }
+  
+  .data-vis-container h3 {
+    text-align: center;
+    color: #333;
+  }
+  
