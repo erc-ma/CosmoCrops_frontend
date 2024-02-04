@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useReducer } from 'react';
 import MetricBox from './MetricBox';
 import Alert from './Alert';
 import VisualizationType from './VisualizationType';
+import FloatingAlerts from './FloatingAlert'
 
 // import { useMediaQuery } from 'react-responsive';
 import WebSocketComponent from './WebSocketComponent';
@@ -18,10 +19,11 @@ async function fetchData() {
     return json; // Return the fetched data
   } catch (error) {
     const json = {
-      temperature:20,
-      moisture:32,
+      temperature:0,
+      moisture:0.5,
       light:50,
-      water_level:60
+      water_level:60,
+      timestamp:1707007776
     }
     return json; // Return the fetched data
   }
@@ -44,7 +46,9 @@ function App() {
   
         // Use a functional update for metricData
         // handleMetricDataChange(fetchedData);
-        dispatch({ type: 'add', payload: fetchedData });
+        if (!(fetchData.temperature==0 || fetchedData.moisture==0 || fetchedData.light ==0 || fetchedData.water_level==0)){
+          dispatch({ type: 'add', payload: fetchedData });
+        }
         console.log("data length"+metricData.length)
         dispatch({ type: 'remove', payload: fetchedData });
 
@@ -69,7 +73,29 @@ function App() {
         return state;
     }
   };
-  const [metricData, dispatch] = useReducer(reducer, []);
+  const [metricData, dispatch] = useReducer(reducer, [
+    {
+      'timestamp': 1707007776,
+      'water_level': 0.6,
+      'moisture': 0.3,
+      'temperature': 28.5,
+      'light': 50,
+    },
+    {
+      'timestamp': 1707007777,
+      'water_level': 0.5,
+      'moisture': 0.6,
+      'temperature': 25.5,
+      'light': 30,
+    },
+    {
+      'timestamp': 1707007778,
+      'water_level': 0.8,
+      'moisture': 0.4,
+      'temperature': 25.9,
+      'light': 25,
+    }
+  ]);
   
 
   // // State variables
@@ -234,9 +260,9 @@ function App() {
   }
   const renderMessage = () => {
     if (!checkAllStatus()) {
-      return <h3 className="message" style={{ color: 'red' }}>There exists some concerning metrics</h3>;
+      return <h3 className="message" style={{ color: '#FF2400' }}>There are some concerning metrics: </h3>;
     } else {
-      return <h3 className="message" style={{ color: 'green' }}>Your crops are doing great! </h3>;
+      return <h3 className="message" style={{ color: '#56AE57' }}>Your crops are doing great! </h3>;
     }
   };
 
@@ -270,7 +296,7 @@ function App() {
             <MetricBox metricName={"Moisture"} value={moisture} status={checkMoistureStatus()} />
             <MetricBox metricName={"Water Level"} value={water_level} status={checkWaterStatus()} />
             <MetricBox metricName={"Light"} value={light} status={checkLightStatus()} />
-            <MetricBox metricName={"metricdata"} value={metricData.length} status={checkLightStatus()} />
+            {/* <MetricBox metricName={"metricdata"} value={metricData.length} status={checkLightStatus()} /> */}
           </div>
 
 
@@ -280,12 +306,12 @@ function App() {
           <h2 className="title">Insights</h2>
           <div className="status-page">
             <div className='vert-pair'>
-              <DataVis type={VisualizationType.Line} data={metricData} />
+              <DataVis type={VisualizationType.Line} data={metricData} temp={temperature}  moisture={moisture}  water_level={water_level}  light={light} />
               <DataVis type={VisualizationType.Bar}data={metricData} />
             </div>
             <div className='vert-pair'>
-              <DataVis type={VisualizationType.Bar2}data={metricData}/>
-              <DataVis type={VisualizationType.Bar3}data={metricData} />
+              <DataVis type={VisualizationType.Bar2}data={metricData}  />
+              <DataVis type={VisualizationType.Bar3}data={metricData}/>
             </div>
           </div>
 
@@ -301,7 +327,7 @@ function App() {
           )}
         </section>
       </main>
-
+      <FloatingAlerts alerts={alerts} onRemove={removeAlert} />
     </div>
 
   );

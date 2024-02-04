@@ -8,7 +8,7 @@ import {
   VictoryTheme,
   VictoryScatter,
   VictoryLabel,
-  VictoryBoxPlot,
+  VictoryBoxPlot, VictoryContainer,
   VictoryBar,
 } from "victory";
 // import Papa from "papaparse";
@@ -55,7 +55,7 @@ const markerData = [
   },
 ];
 
-const DataVis = ({ type, data }) => {
+const DataVis = ({ type, data, temp, moisture, water_level, light }) => {
   // Data: list of unique
   switch (type) {
     case VisualizationType.Line:
@@ -65,18 +65,10 @@ const DataVis = ({ type, data }) => {
             <VictoryBoxPlot
               boxWidth={20}
               data={[
-                {
-                  x: "Hydration",
-                  min: 0,
-                  max: 100,
-                  q1: 30,
-                  median: 80,
-                  q3: 70,
-                }, //TODO UPDATE BOUNDS, current value???
-                { x: "Lol", min: 0, max: 100, q1: 30, median: 20, q3: 70 },
-                { x: "Amongus", min: 0, max: 100, q1: 30, median: 50, q3: 70 },
-                { x: "Lmao", min: 0, max: 100, q1: 30, median: 50, q3: 70 },
-                { x: "Coolsies", min: 0, max: 100, q1: 30, median: 50, q3: 70 },
+                { x: "Temperature", min: 0, max: 100, q1: 10, median: temp, q3: 30 },
+                { x: "Moisture", min: 0, max: 100, q1: 30, median: moisture, q3: 100 },
+                { x: "Water Level", min: 0, max: 100, q1: 0, median: water_level, q3: 100 },
+                { x: "Light Intensity", min: 0, max: 100, q1: 30, median: light, q3: 100 },
               ]}
               style={{
                 q1: { fill: "tomato" }, // Change the color of the first quartile box
@@ -91,7 +83,6 @@ const DataVis = ({ type, data }) => {
                       "#aed581",
                       "#fff176",
                       "#ffb74d",
-                      "#e57373",
                     ];
                     return colors[d.index % colors.length];
                   },
@@ -107,27 +98,34 @@ const DataVis = ({ type, data }) => {
           theme={VictoryTheme.material}
           animate={{ duration: 2000 }}
           domainPadding={{ y: [10, 30] }}
+          domain={{ y: [data.length > 0 ? Math.min(...data.map(d => d.temperature)) : 0, data.length > 0 ? Math.max(...data.map(d => d.temperature)) : 0] }}
         >
           <VictoryArea
             data={data.map((d) => ({
               x: d.timestamp,
               y: d.temperature,
             }))}
-            style={{ d: { fill: "#c43a31" } }}
+
+            style={{ data: { fill: "#966fd6" } }}
           />
           <VictoryAxis
-            tickValues={data
-              .map((d) => d.timestamp)
-              .filter((_, index) => index % 60 === 0)}
-            tickFormat={(tick) => formatTime(tick)} // Format the x-axis tick labels to show time
-            fixLabelOverlap={true} // This helps to prevent label overlap
+            tickValues={data.map((d) => d.timestamp).filter((_, index) => index % 60 === 0)}
+            tickFormat={(tick) => formatTime(tick)}
+            fixLabelOverlap={true}
+            style={{
+              tickLabels: { fill: "#667fc4", fontSize: 12, padding: 5 },
+              grid: { stroke: "#ddd", strokeDasharray: "4, 8" },
+            }}
           />
           <VictoryAxis
-            dependentAxis // This configures the axis as a y-axis
-            tickFormat={(tick) => `${tick}°`} // Adjust if necessary for your data representation
+            dependentAxis
+            tickFormat={(tick) => `${tick}°`}
             label="Temperature (C)"
             style={{
-              axisLabel: { padding: 35 }, // Adjust label positioning
+              axisLabel: { padding: 35, fill: "#667fc4", fontSize: 14, fontStyle: "italic" },
+              ticks: { stroke: "#667fc4", size: 5 },
+              tickLabels: { fill: "#667fc4", fontSize: 12, padding: 5 },
+              grid: { stroke: "#ddd", strokeDasharray: "4, 8" },
             }}
           />
         </VictoryChart>
@@ -138,58 +136,72 @@ const DataVis = ({ type, data }) => {
           theme={VictoryTheme.material}
           animate={{ duration: 2000 }}
           domainPadding={{ y: [10, 30] }}
+          domain={{y: [data.length > 0 ? Math.min(...data.map(d => d.water_level)) : 0, data.length > 0 ? Math.max(...data.map(d => d.water_level)) : 0] }}
         >
           <VictoryArea
             data={data.map((d) => ({
               x: d.timestamp,
               y: d.water_level,
             }))}
-            style={{ d: { fill: "#c43a31" } }}
+            style={{ data: { fill: "#4fc3f7" } }}
           />
           <VictoryAxis
-            tickValues={data
-              .map((d) => d.timestamp)
-              .filter((_, index) => index % 60 === 0)}
-            tickFormat={(tick) => formatTime(tick)} // Format the x-axis tick labels to show time
-            fixLabelOverlap={true} // This helps to prevent label overlap
+            tickValues={data.map((d) => d.timestamp).filter((_, index) => index % 60 === 0)}
+            tickFormat={(tick) => formatTime(tick)}
+            fixLabelOverlap={true}
+            style={{
+              tickLabels: { fill: "#667fc4", fontSize: 12, padding: 5 },
+              grid: { stroke: "#ddd", strokeDasharray: "4, 8" },
+            }}
           />
           <VictoryAxis
-            dependentAxis // This configures the axis as a y-axis
-            tickFormat={(tick) => `${tick}%`} // Adjust if necessary for your data representation
+            dependentAxis
+            tickFormat={(tick) => `${tick}°`}
             label="Water Level (%)"
             style={{
-              axisLabel: { padding: 35 }, // Adjust label positioning
+              axisLabel: { padding: 35, fill: "#667fc4", fontSize: 14, fontStyle: "italic" },
+              ticks: { stroke: "#667fc4", size: 5 },
+              tickLabels: { fill: "#667fc4", fontSize: 12, padding: 5 },
+              grid: { stroke: "#ddd", strokeDasharray: "4, 8" },
             }}
           />
         </VictoryChart>
       );
     case VisualizationType.Bar3:
+      const ymin=Math.max(Math.min(...data.map(d => d.light))-8,0);
+      const ymax=Math.min(Math.max(...data.map(d => d.light))+8,100);
       return (
         <VictoryChart
           theme={VictoryTheme.material}
           animate={{ duration: 2000 }}
           domainPadding={{ y: [10, 30] }}
+          domain={{ y: [data.length > 0 ? ymin : 0, data.length > 0 ? ymax : 0] }}
         >
           <VictoryArea
             data={data.map((d) => ({
               x: d.timestamp,
               y: d.light,
             }))}
-            style={{ d: { fill: "#c43a31" } }}
+            style={{ data: { fill: "#56AE57" } }}
           />
           <VictoryAxis
-            tickValues={data
-              .map((d) => d.timestamp)
-              .filter((_, index) => index % 60 === 0)}
-            tickFormat={(tick) => formatTime(tick)} // Format the x-axis tick labels to show time
-            fixLabelOverlap={true} // This helps to prevent label overlap
+            tickValues={data.map((d) => d.timestamp).filter((_, index) => index % 60 === 0)}
+            tickFormat={(tick) => formatTime(tick)}
+            fixLabelOverlap={true}
+            style={{
+              tickLabels: { fill: "#667fc4", fontSize: 12, padding: 5 },
+              grid: { stroke: "#ddd", strokeDasharray: "4, 8" },
+            }}
           />
           <VictoryAxis
-            dependentAxis // This configures the axis as a y-axis
-            tickFormat={(tick) => `${tick}%`} // Adjust if necessary for your data representation
+            dependentAxis
+            tickFormat={(tick) => `${tick}°`}
             label="Light Intensity (%)"
             style={{
-              axisLabel: { padding: 35 }, // Adjust label positioning
+              axisLabel: { padding: 35, fill: "#667fc4", fontSize: 14, fontStyle: "italic" },
+              ticks: { stroke: "#667fc4", size: 5 },
+              tickLabels: { fill: "#667fc4", fontSize: 12, padding: 5 },
+              grid: { stroke: "#ddd", strokeDasharray: "4, 8" },
             }}
           />
         </VictoryChart>
