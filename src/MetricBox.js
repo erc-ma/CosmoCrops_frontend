@@ -7,7 +7,12 @@ const MetricBox = ({ metricName, value, status }) => {
 
   return (
     <div className="metric-box" style={{ backgroundColor: color }}>
-      <div className="metric-value">{value}</div>
+      {metricName=="Temperature" ? (
+            <div className="metric-value">{value + "°C"}</div>
+          ) : (
+            <div className="metric-value">{value + "%"}</div>
+          )}
+      
       
       <div className="metric-name">{metricName}</div>
     </div>

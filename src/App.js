@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import MetricBox from './MetricBox';
 import Alert from './Alert';
 import VisualizationType from './VisualizationType';
-// hey
+
 // import { useMediaQuery } from 'react-responsive';
 import WebSocketComponent from './WebSocketComponent';
 import background from './background.mp4'
@@ -146,7 +146,7 @@ function App() {
 
 
 
-  // Returns status of temperature
+   // Returns status of temperature
   // Returns 0 for normal, 1 for high, -1 for low
   const checkTempStatus = () => {
     if (temperature > 30) { // Example: High if above 30°C
@@ -160,29 +160,20 @@ function App() {
   // Returns status of moisture
   // Returns 0 for normal, 1 for high, -1 for low
   const checkMoistureStatus = () => {
-    if (moisture > 80) {
-      return 1;
-    } else if (moisture < 40) {
+    if (moisture < 30) {
       return -1;
     }
     return 0;
   }
 
   const checkLightStatus = () => {
-    if (light > 800) { // High light condition
-      return 1;
-    } else if (light < 300) { // Low light condition
+    if (light < 30) { // Low light condition
       return -1;
     }
     return 0; // Normal light condition
   };
 
   const checkWaterStatus = () => {
-    if (water_level > 75) { // High water level condition
-      return 1;
-    } else if (water_level < 25) { // Low water level condition
-      return -1;
-    }
     return 0; // Normal water level condition
   };
 
