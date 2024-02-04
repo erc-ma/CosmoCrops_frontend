@@ -156,7 +156,7 @@ section format + colors
 section{
   /* background-color: rgba(0, 0, 0, 0.698); */
   background-color: rgba(250, 233, 192, 0.952);
-  min-height: 90vh;
+  min-height: 70vh;
   min-width: 90%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds shadow for floating effect */
   margin: 30px auto; /* Adds space around sections and centers them */

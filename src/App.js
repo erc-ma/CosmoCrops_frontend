@@ -18,7 +18,10 @@ async function fetchData() {
     return json; // Return the fetched data
   } catch (error) {
     const json = {
-
+      temperature:20,
+      moisture:32,
+      light:50,
+      water_level:60
     }
     return json; // Return the fetched data
   }
@@ -227,22 +230,6 @@ function App() {
             <MetricBox metricName={"metricdata"} value={metricData} status={checkLightStatus()} />
           </div>
 
-          <input
-            type="range"
-            min="0"
-            max="50"
-            value={temperature}
-            onChange={handleTemperatureChange}
-            className="temperature-slider"
-          />
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={moisture}
-            onChange={handleMoistureChange}
-            className="temperature-slider"
-          />
 
         </section>
 
